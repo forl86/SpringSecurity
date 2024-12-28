@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit</title>
+</head>
+<body>
+    <form action="#" th:action="@{/admin/edit/}" th:object="${user}" method="post">
+        <tr>
+            <td><label th:text="#{user.id}" /></td>
+            <td><input type="number" th:field="*{id}" /></td>
+            <div style="color: red" th:if="${#fields.hasErrors('id')}" th:errors="*{id}">Id error</div>
+        </tr>
+        <tr>
+            <td><label th:text="#{user.username}"></label></td>
+            <td><input type="text" th:field="*{username}" /></td>
+            <div style="color: red" th:if="${#fields.hasErrors('username')}" th:errors="*{username}">Name error</div>
+        </tr>
+        <tr>
+            <td><label th:text="#{user.password}" /></td>
+            <td><input type="text" th:field="*{password}" /></td>
+            <div style="color: red" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password error</div>
+        </tr>
+        <br/>
+        <label>Имеет админскую роль</label>
+            <input type="checkbox" name="confirm1" th:checked="${flag} ? 'checked'">
+        </label>
+        <tr>
+            <td><input type="submit" value="Submit"></td>
+        </tr>
+
+    </form>
+</body>
+</html>

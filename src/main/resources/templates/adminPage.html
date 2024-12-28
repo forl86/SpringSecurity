@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Users</title>
+</head>
+<body>
+<h1>Admin, welcome spring boot security page!</h1>
+    <table>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Roles</th>
+            <th>action</th>
+        </tr>
+        <tr th:each="user : ${usersList}">
+            <td th:text="${user.getId()}"></td>
+            <td th:text="${user.getUsername()}"></td>
+            <td th:each="role : ${user.getRoles()}">
+                <a th:text="${role.getRoleName()}"></a>
+            </td>
+            <td>
+                <a th:href="@{'/admin/edit/?id=' + ${user.getId()}}">edit</a>
+                <a th:href="@{'/admin/delete/?id=' + ${user.getId()}}">delete</a>
+            </td>
+        </tr>
+    </table>
+<h2>Add</h2>
+<url value="/admin/add" var="add"></url>
+<a th:href="@{'admin/add'}">Add new user</a>
+<div sec:authorize="isAuthenticated()">
+    <form  th:action="@{/logout}" method="post">
+        <input type="submit" value="Выйти">
+    </form>
+</div>
+</body>
+</html>

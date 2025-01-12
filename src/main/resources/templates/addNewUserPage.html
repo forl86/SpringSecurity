@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add new user</title>
+</head>
+<body>
+<form action="#" th:action="@{/admin/add/}" th:object="${user}" method="post">
+        <td><label th:text="#{user.id}" /></td>
+        <td><input type="number" th:field="*{id}" /></td>
+        <div style="color: red" th:if="${#fields.hasErrors('id')}" th:errors="*{id}">Id error</div>
+        <td><label th:text="#{user.username}"></label></td>
+        <td><input type="text" th:field="*{username}" /></td>
+        <div style="color: red" th:if="${#fields.hasErrors('username')}" th:errors="*{username}">Name error</div>
+        <td><label th:text="#{user.password}" /></td>
+        <td><input type="text" th:field="*{password}" /></td>
+        <div style="color: red" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password error</div>
+    <br/>
+    <tr th:each ="role : ${availableRoles}">
+        <td th:utext="${role.getRoleName()}">...</td>
+        <input type="checkbox" th:if="${role.getRoleName() == 'ROLE_USER'}" th:field="*{userRoleIsSet}" th:checked="${flag} ? 'checked'">
+        <input type="checkbox" th:unless="${role.getRoleName() == 'ROLE_USER'}" th:field="*{adminRoleIsSet}" th:checked="${flag} ? 'checked'">
+    </tr>
+        <td><input type="submit" value="Submit"></td>
+</body>
+</html>

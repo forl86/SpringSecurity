@@ -28,10 +28,10 @@ public class UserController {
     public String user(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        User user = (User) userService.loadUserByUsername(userDetails.getUsername());
-        model.addAttribute("user", user);
-        model.addAttribute("userName", userDetails.getUsername());
-        model.addAttribute("userPassword", userDetails.getPassword());
+        User currentUser = (User) userService.loadUserByUsername(userDetails.getUsername());
+        model.addAttribute("currentUser", currentUser);
+//        model.addAttribute("userName", userDetails.getUsername());
+//        model.addAttribute("userPassword", userDetails.getPassword());
         return "userPage";
     }
 }

@@ -18,9 +18,24 @@
             <div style="color: red" th:if="${#fields.hasErrors('username')}" th:errors="*{username}">Name error</div>
         </tr>
         <tr>
+            <td><label th:text="#{user.lastname}"></label></td>
+            <td><input type="text" th:field="*{lastname}" /></td>
+            <div style="color: red" th:if="${#fields.hasErrors('lastname')}" th:errors="*{lastname}">Last Name error</div>
+        </tr>
+        <tr>
             <td><label th:text="#{user.password}" /></td>
             <td><input type="text" th:field="*{password}" /></td>
             <div style="color: red" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password error</div>
+        </tr>
+        <tr>
+            <td><label th:text="#{user.email}" /></td>
+            <td><input type="text" th:field="*{email}" /></td>
+            <div style="color: red" th:if="${#fields.hasErrors('email')}" th:errors="*{email}">Email error</div>
+        </tr>
+        <tr>
+            <td><label th:text="#{user.age}" /></td>
+            <td><input type="text" th:field="*{age}" /></td>
+            <div style="color: red" th:if="${#fields.hasErrors('age')}" th:errors="*{age}">Age error</div>
         </tr>
         <br/>
         <tr th:each ="role : ${availableRoles}">

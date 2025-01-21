@@ -1,5 +1,7 @@
 package ru.kata.spring.boot_security.demo.controller;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
@@ -34,7 +36,13 @@ public class AdminController {
 
     @GetMapping("/admin")
     public String admin(Model model) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        User currentUser = (User)userService.loadUserByUsername(userDetails.getUsername());
+        User newUser = new User();
+        model.addAttribute("currentUser", currentUser);
         model.addAttribute("usersList", userService.showAllUsers());
+        model.addAttribute("addedUser", newUser);
         return "adminPage";
     }
 
@@ -104,7 +112,7 @@ public class AdminController {
     }
 
     @PostMapping(value = "/admin/add/")
-    public ModelAndView addUser(@ModelAttribute("user") @Valid User user, BindingResult result) {
+    public ModelAndView addUser(@ModelAttribute("addedUser") @Valid User user, BindingResult result, @RequestParam String mySelect) {
         ModelAndView modelAndView = new ModelAndView();
         UserDetails userDetails = null;
         try {
@@ -121,13 +129,13 @@ public class AdminController {
             return modelAndView;
         }
         Set<Role> roles = new HashSet<>();
-        if (user.getAdminRoleIsSet()) {
-            Role adminRole = userService.getRoleById(2L);
-            roles.add(adminRole);
-        }
-        if (user.getUserRoleIsSet()) {
+        if( mySelect.equals("2")) {
             Role userRole = userService.getRoleById(1L);
             roles.add(userRole);
+        }
+        if( mySelect.equals("1")) {
+            Role adminRole = userService.getRoleById(2L);
+            roles.add(adminRole);
         }
         user.setRoles(roles);
         userService.saveUser(user);

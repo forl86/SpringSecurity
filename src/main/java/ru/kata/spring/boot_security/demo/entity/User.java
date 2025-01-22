@@ -25,7 +25,7 @@ public class User implements UserDetails {
     private int age;
     @Size(min = 5, message = "Не меньше 5 знаков")
     private String email;
-    @Size(min = 2, message = "Не меньше 2 знаков")
+    //@Size(min = 2, message = "Не меньше 2 знаков")
     private String password;
     @Transient
     private boolean userRoleIsSet;

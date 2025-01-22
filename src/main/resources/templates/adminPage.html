@@ -99,7 +99,8 @@
                                     </td>
                                     <td>
                                         <a th:href="@{'/admin/edit/?id=' + ${user.getId()}}">edit</a>
-                                        <button type="button" class="btn btn-primary" id="btnEdit" data-bs-toggle="modal" data-bs-target="#exampleModal" data-user-id="123" data-user-name="John">
+                                        <button type="button" class="btn btn-primary" id="btnEdit" data-bs-toggle="modal" data-bs-target="#exampleModal" th:data-user-id="${user.getId()}" th:data-user-name="${user.getUsername()}" th:data-user-lastname="${user.getLastname()}"
+                                        th:data-user-age="${user.getAge()}" th:data-user-email="${user.getEmail()}">
                                             Edit
                                         </button>
                                         <!-- Модальное окно -->
@@ -111,59 +112,54 @@
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
                                                     </div>
                                                     <div class="modal-body">
-                                                        <form action="#" th:action="@{/admin/edit/}" th:object="${user}" method="post">
+                                                        <form id="editUserForm" action="/admin/edit" th:action="@{/admin/edit/}" th:object="${user}" method="post">
                                                             <div class="col">
                                                                 <div class="col text-center">
                                                                     <label>ID
-                                                                        <input type="text" class="form-control" id="modalTitle">
+                                                                        <input type="text" class="form-control" id="userId" name="id" th:value="${user.id}">
                                                                     </label>
                                                                 </div>
                                                                 <div class="col text-center">
                                                                     <label>First name
-                                                                        <input type="text" class="form-control" id="modalContent"> <!--th:field="*{username}"-->
+                                                                        <input type="text" class="form-control" id="userName" name="username" th:value="${user.username}">
                                                                     </label>
                                                                 </div>
                                                                 <div class="col text-center">
                                                                     <label>Last name
-                                                                        <input type="text" class="form-control"> <!--th:field="*{lastname}">-->
+                                                                        <input type="text" class="form-control" id="userLastName" name="lastname" th:value="${user.lastname}">
                                                                     </label>
                                                                 </div>
                                                                 <div class="col text-center">
                                                                     <label>Age
-                                                                        <input type="number" class="form-control"> <!--th:field="*{age}">-->
+                                                                        <input type="number" class="form-control" id="userAge" name="age" th:value="${user.age}">
                                                                     </label>
                                                                 </div>
                                                                 <div class="col text-center">
                                                                     <label>Email
-                                                                        <input type="text" class="form-control"><!-- th:field="*{email}">-->
+                                                                        <input type="text" class="form-control" id="userEmail" name="email" th:value="${user.email}">
                                                                     </label>
                                                                 </div>
                                                                 <div class="col text-center">
                                                                     <label>Password
-                                                                        <input type="password" class="form-control"><!-- th:field="*{password}">-->
+                                                                        <input type="password" class="form-control" id="userPassword" name="password" placeholder="Leave blank to keep current password">
                                                                     </label>
                                                                 </div>
                                                                 <div class="col text-center">
                                                                     <label>Role</label>
-                                                                    <select class="form-select" size="2" aria-label="multiple select example" name="mySelect">
-                                                                        <option value="1"><!--th:field="*{setRole(1L)}"-->ADMIN</option>
-                                                                        <option value="2">USER</option>
+                                                                    <select class="form-select" size="2" aria-label="multiple select example" name="roles" multiple>
+                                                                        <option th:each="role : ${allRoles}"
+                                                                                th:value="${role.id}"
+                                                                                th:text="${role.roleName}"
+                                                                                th:selected="${user.roles.contains(role)}">
+                                                                        </option>
                                                                     </select>
                                                                 </div>
-                                                                <div class="col">
-                                                                    <input type="submit" th:href="@{'admin/edit'}" id="btnEditUser" value="Edit user">
+                                                                <div class="modal-footer">
+                                                                    <input type="submit" class="btn btn-primary" id="btnEditUser" value="Edit">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                                                 </div>
-                                                                <!--<div class="col">
-                                                                    <a th:href="@{'admin/add'}" class="btn btn-info" role="button">Add new user</a>
-                                                                </div>-->
                                                             </div>
-                                                            <!--<url value="/admin/add" var="add"></url>
-                                                        <a class="nav-link" th:href="@{'admin/add'}">New User</a>-->
                                                         </form>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                                        <button type="button" class="btn btn-primary">Edit</button>
                                                     </div>
                                                 </div>
                                             </div>
@@ -213,12 +209,7 @@
                                     <div class="col">
                                         <input type="submit" th:href="@{'admin/add'}" id="btnAddUser" value="Add new user">
                                     </div>
-                                    <!--<div class="col">
-                                        <a th:href="@{'admin/add'}" class="btn btn-info" role="button">Add new user</a>
-                                    </div>-->
                                 </div>
-                                <!--<url value="/admin/add" var="add"></url>
-                            <a class="nav-link" th:href="@{'admin/add'}">New User</a>-->
                             </form>
                         </div>
                     </div>
@@ -273,19 +264,25 @@
         b1.style.color = "blue";
     }
     document.getElementById('exampleModal').addEventListener('show.bs.modal', function (event) {
-        // Кнопка, которая вызвала модальное окно
         const button = event.relatedTarget;
-
-        // Получаем данные из атрибутов
         const userId = button.getAttribute('data-user-id');
         const userName = button.getAttribute('data-user-name');
-
-        // Обновляем содержимое модального окна
-        const modalTitle = document.getElementById('modalTitle');
-        const modalContent = document.getElementById('modalContent');
-
-        modalTitle.textContent = `Пользователь: ${userName}`;
-        modalContent.textContent = `ID пользователя: ${userId}`;
+        const userLastName = button.getAttribute('data-user-lastname');
+        const userAge = button.getAttribute('data-user-age');
+        const userEmail = button.getAttribute('data-user-email');
+        document.getElementById('userId').value = userId;
+        document.getElementById('userName').value = userName;
+        document.getElementById('userLastName').value = userLastName;
+        document.getElementById('userAge').value = userAge;
+        document.getElementById('userEmail').value = userEmail;
+        // document.getElementById('password').value = 'password123';
+        // document.getElementById('role').value = 1; // ADMIN
+    });
+    document.getElementById('editUserForm').addEventListener('submit', function(event) {
+        const passwordField = document.getElementById('password');
+        if (passwordField.value === '') {
+            passwordField.disabled = true;
+        }
     });
 </script>
 </body>

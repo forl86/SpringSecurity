@@ -4,6 +4,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -27,11 +28,13 @@ import java.util.Set;
 public class AdminController {
 
     private final UserService userService;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     private String userNameBuff;
 
-    public AdminController(UserService userService) {
+    public AdminController(UserService userService, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userService = userService;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     @GetMapping("/admin")
@@ -43,6 +46,7 @@ public class AdminController {
         model.addAttribute("currentUser", currentUser);
         model.addAttribute("usersList", userService.showAllUsers());
         model.addAttribute("addedUser", newUser);
+        model.addAttribute("allRoles", userService.getAllRoles());
         return "adminPage";
     }
 
@@ -67,20 +71,20 @@ public class AdminController {
     }
 
     @PostMapping(value = "/admin/edit/")
-    public ModelAndView editUser(@ModelAttribute("user") @Valid User user, BindingResult result) {
+    public ModelAndView editUser(@ModelAttribute("user") @Valid User user, BindingResult result, @RequestParam("roles") List<Long> roleIds, @RequestParam(value = "password", required = false) String password) {
         ModelAndView modelAndView = new ModelAndView();
-        if (!Objects.equals(userNameBuff, user.getUsername())) {
-            UserDetails userDetails = userService.loadUserByUsername(user.getUsername());
-            if (userDetails != null) {
-                result.addError(new ObjectError("username", "Username is not unique!"));
-            }
-        }
+        //if (!Objects.equals(userNameBuff, user.getUsername())) {
+//            UserDetails userDetails = userService.loadUserByUsername(user.getUsername());
+//            if (userDetails != null) {
+//                result.addError(new ObjectError("username", "Username is not unique!"));
+//            }
+        //}
         if (result.hasErrors()) {
             modelAndView.setViewName("editPage");
             modelAndView.addObject("user", user);
             return modelAndView;
         }
-        User trueUser = userService.findUserById(user.getId());
+/*        User trueUser = userService.findUserById(user.getId());
         Set<Role> roles = trueUser.getRoles();
         Role adminRole = userService.getRoleById(2L);
         Role userRole = userService.getRoleById(1L);
@@ -93,9 +97,21 @@ public class AdminController {
             roles.add(adminRole);
         } else {
             roles.remove(adminRole);
+        }*/
+        Set<Role> roles = new HashSet<>();
+            for( long id : roleIds) {
+            Role role = userService.getRoleById(id);
+            roles.add(role);
         }
         user.setRoles(roles);
-        userService.saveUser(user);
+        if (password != null && !password.isEmpty()) {
+            user.setPassword(bCryptPasswordEncoder.encode(password));
+        } else {
+            User existingUser = userService.findUserById(user.getId());
+            user.setPassword(existingUser.getPassword());
+        }
+        userService.updateUser(user);
+//      userService.saveUser(user);
         modelAndView.setViewName("redirect:/admin");
         return modelAndView;
     }

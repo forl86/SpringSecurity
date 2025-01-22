@@ -1,11 +1,9 @@
 package ru.kata.spring.boot_security.demo.service;
 
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import ru.kata.spring.boot_security.demo.entity.Role;
 import ru.kata.spring.boot_security.demo.entity.User;
 import ru.kata.spring.boot_security.demo.repository.RoleRepository;
@@ -83,5 +81,16 @@ public class UserServiceImpl implements UserService {
         }
         return false;
     }
-
+    public void updateUser(User user) {
+        User existingUser = userRepository.findById(user.getId())
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + user.getId()));
+        existingUser.setUsername(user.getUsername());
+        existingUser.setEmail(user.getEmail());
+        existingUser.setRoles(user.getRoles());
+        existingUser.setAge(user.getAge());
+        if( user.getPassword() != null && !user.getPassword().isEmpty()) {
+            existingUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        }
+        userRepository.save(existingUser);
+    }
 }

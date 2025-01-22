@@ -43,6 +43,7 @@ public class AdminController {
         model.addAttribute("currentUser", currentUser);
         model.addAttribute("usersList", userService.showAllUsers());
         model.addAttribute("addedUser", newUser);
+        model.addAttribute("allRoles", userService.getAllRoles());
         return "adminPage";
     }
 
@@ -67,20 +68,20 @@ public class AdminController {
     }
 
     @PostMapping(value = "/admin/edit/")
-    public ModelAndView editUser(@ModelAttribute("user") @Valid User user, BindingResult result) {
+    public ModelAndView editUser(@ModelAttribute("user") @Valid User user, BindingResult result, @RequestParam("roles") List<Long> roleIds) {
         ModelAndView modelAndView = new ModelAndView();
-        if (!Objects.equals(userNameBuff, user.getUsername())) {
-            UserDetails userDetails = userService.loadUserByUsername(user.getUsername());
-            if (userDetails != null) {
-                result.addError(new ObjectError("username", "Username is not unique!"));
-            }
-        }
+        //if (!Objects.equals(userNameBuff, user.getUsername())) {
+//            UserDetails userDetails = userService.loadUserByUsername(user.getUsername());
+//            if (userDetails != null) {
+//                result.addError(new ObjectError("username", "Username is not unique!"));
+//            }
+        //}
         if (result.hasErrors()) {
             modelAndView.setViewName("editPage");
             modelAndView.addObject("user", user);
             return modelAndView;
         }
-        User trueUser = userService.findUserById(user.getId());
+/*        User trueUser = userService.findUserById(user.getId());
         Set<Role> roles = trueUser.getRoles();
         Role adminRole = userService.getRoleById(2L);
         Role userRole = userService.getRoleById(1L);
@@ -93,6 +94,11 @@ public class AdminController {
             roles.add(adminRole);
         } else {
             roles.remove(adminRole);
+        }*/
+        Set<Role> roles = new HashSet<>();
+        for( long id : roleIds) {
+            Role role = userService.getRoleById(id);
+            roles.add(role);
         }
         user.setRoles(roles);
         userService.saveUser(user);

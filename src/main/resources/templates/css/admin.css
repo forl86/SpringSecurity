@@ -14,9 +14,26 @@
     background-color: darkcyan;
     color: white;
 }
+#btnDelete {
+    background-color: red;
+    color: white;
+}
+#btnFormDelete {
+    background-color: red;
+    color: white;
+}
 #logoutForm {
     background: #222222;
     color: darkgrey;
+}
+#labelRole, #formSelectRole {
+    display: block;
+}
+.form-group {
+    width: 33%;
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: 5px;
 }
 .custom-container {
     border-radius: 0 !important;

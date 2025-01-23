@@ -14,10 +14,66 @@
     background-color: darkcyan;
     color: white;
 }
+#btnDelete {
+    background-color: red;
+    color: white;
+}
+#btnFormDelete {
+    background-color: red;
+    color: white;
+}
 #logoutForm {
     background: #222222;
     color: darkgrey;
 }
+#labelRole, #formSelectRole {
+    display: block;
+}
+.form-group {
+    width: 33%;
+    display: grid;
+    grid-template-rows: auto auto;
+    gap: 5px;
+}
 .custom-container {
     border-radius: 0 !important;
+}
+/* Стили для модального окна */
+.modal {
+    display: none; /* Скрыто по умолчанию */
+    position: fixed; /* Оставаться на месте при прокрутке */
+    z-index: 1; /* Находиться поверх других элементов */
+    left: 500px;
+    top: 0;
+    width: 40%;
+    height: 90%;
+    overflow: auto; /* Включить прокрутку, если нужно */
+    background-color: rgba(100, 100, 100, 1); /* Полупрозрачный черный фон */
+}
+
+/* Стили для содержимого модального окна */
+.modal-content {
+    background-color: #fefefe;
+    margin: 0; /* 15% от верха и по центру */
+    padding: 0;
+    border: none;
+    height: 100%;
+    width: 100%; /* Ширина содержимого */
+    border-radius: 0;
+}
+
+/* Стили для кнопки закрытия */
+.close {
+    color: #aaa;
+    float: left;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.close:hover {
+    color: black;
+}
+.mb-3 {
+    margin-bottom: 0;
 }

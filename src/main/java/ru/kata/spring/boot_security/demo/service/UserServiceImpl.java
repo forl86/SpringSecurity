@@ -6,34 +6,27 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.kata.spring.boot_security.demo.entity.Role;
 import ru.kata.spring.boot_security.demo.entity.User;
-import ru.kata.spring.boot_security.demo.repository.RoleRepository;
 import ru.kata.spring.boot_security.demo.repository.UserRepository;
 
 import javax.persistence.EntityNotFoundException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final RoleRepository roleRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final RoleService roleService;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    public UserServiceImpl(UserRepository userRepository, RoleRepository roleRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder, RoleService roleService, CustomUserDetailsService customUserDetailsService) {
         this.userRepository = userRepository;
-        this.roleRepository = roleRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-    }
-
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
-
-        if (user == null) {
-            throw new UsernameNotFoundException("User not found");
-        }
-        return user;
+        this.roleService = roleService;
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     @Override
@@ -50,27 +43,28 @@ public class UserServiceImpl implements UserService {
         return userRepository.findAll();
     }
 
-    public Role getRoleById(long id) {
-        Role role = roleRepository.getById(id);
-        if (role == null) {//why always false?
-            throw new EntityNotFoundException("No role with such id!");
-        }
-        return roleRepository.getById(id);
-    }
-
     @Override
-    public List<Role> getAllRoles() {
-        return roleRepository.findAll();
-    }
-
-    @Override
-    public boolean saveUser(User user) {
-        User userFromDB = userRepository.findByUsername(user.getUsername());
-        if ((user.getId() == null) || (!userFromDB.getPassword().equals(user.getPassword()))) {
-            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+    public void saveUser(User user, String roleSelect) {
+        UserDetails userDetails = null;
+        try {
+            userDetails = customUserDetailsService.loadUserByUsername(user.getUsername());
+        } catch (UsernameNotFoundException ignore) {
+            // Игнорируем, если пользователь не найден
         }
+        if (userDetails != null) {
+            throw new IllegalArgumentException("Username is not unique!");
+        }
+        Set<Role> roles = new HashSet<>();
+        if (roleSelect.equals("2")) {
+            Role userRole = roleService.getRoleById(1L);
+            roles.add(userRole);
+        } else if (roleSelect.equals("1")) {
+            Role adminRole = roleService.getRoleById(2L);
+            roles.add(adminRole);
+        }
+        user.setRoles(roles);
+        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-        return true;
     }
 
     @Override
@@ -81,15 +75,28 @@ public class UserServiceImpl implements UserService {
         }
         return false;
     }
-    public void updateUser(User user) {
-        User existingUser = userRepository.findById(user.getId())
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + user.getId()));
+    @Override
+    public void updateUser(User user, List<Long> roleIds, String password) {
+        Set<Role> roles = new HashSet<>();
+        for( long id : roleIds) {
+            Role role = roleService.getRoleById(id);
+            roles.add(role);
+        }
+        user.setRoles(roles);
+        if (password != null && !password.isEmpty()) {
+            user.setPassword(bCryptPasswordEncoder.encode(password));
+        } else {
+            User existingUser = this.findUserById(user.getId());
+            user.setPassword(existingUser.getPassword());
+        }
+        User existingUser = this.findUserById(user.getId());
         existingUser.setUsername(user.getUsername());
         existingUser.setEmail(user.getEmail());
         existingUser.setRoles(user.getRoles());
         existingUser.setAge(user.getAge());
+        existingUser.setLastname(user.getLastname());
         if( user.getPassword() != null && !user.getPassword().isEmpty()) {
-            existingUser.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+            existingUser.setPassword(user.getPassword());
         }
         userRepository.save(existingUser);
     }

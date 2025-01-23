@@ -8,15 +8,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import ru.kata.spring.boot_security.demo.entity.User;
+import ru.kata.spring.boot_security.demo.service.CustomUserDetailsService;
 import ru.kata.spring.boot_security.demo.service.UserService;
 
 @Controller
 public class UserController {
 
-    private final UserService userService;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(CustomUserDetailsService customUserDetailsService) {
+        this.customUserDetailsService = customUserDetailsService;
     }
 
     @GetMapping("/")
@@ -28,10 +29,8 @@ public class UserController {
     public String user(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        User currentUser = (User) userService.loadUserByUsername(userDetails.getUsername());
+        User currentUser = customUserDetailsService.loadUserByUsername(userDetails.getUsername());
         model.addAttribute("currentUser", currentUser);
-//        model.addAttribute("userName", userDetails.getUsername());
-//        model.addAttribute("userPassword", userDetails.getPassword());
         return "userPage";
     }
 }

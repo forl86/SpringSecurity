@@ -2,12 +2,14 @@ package ru.kata.spring.boot_security.demo.entity;
 
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.Size;
 
@@ -27,10 +29,7 @@ public class User implements UserDetails {
     private String email;
     //@Size(min = 2, message = "Не меньше 2 знаков")
     private String password;
-    @Transient
-    private boolean userRoleIsSet;
-    @Transient
-    private boolean adminRoleIsSet;
+
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<Role> roles;
 
@@ -53,7 +52,9 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return getRoles();
+        return this.getRoles().stream()
+                .map(role -> new SimpleGrantedAuthority(role.getRoleName()))
+                .collect(Collectors.toList());
     }
 
     public Set<Role> getRoles() {
@@ -104,22 +105,6 @@ public class User implements UserDetails {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public boolean getUserRoleIsSet() {
-        return userRoleIsSet;
-    }
-
-    public boolean getAdminRoleIsSet() {
-        return adminRoleIsSet;
-    }
-
-    public void setAdminRoleIsSet(boolean adminRoleIsSet) {
-        this.adminRoleIsSet = adminRoleIsSet;
-    }
-
-    public void setUserRoleIsSet(boolean userRoleIsSet) {
-        this.userRoleIsSet = userRoleIsSet;
     }
 
     @Override
